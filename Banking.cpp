@@ -80,7 +80,7 @@ class currentAccount : public SavingAccount
 {
 	private:
 	double loanAmount = 0;
-	float rate = 3.25;
+	int rate = 3;
 	public:
 	currentAccount(string _firstName, string _lastName, int _age, string _phone, string _address, string _adhaarNumber, int _accountNum, double _balance, double _loan) : SavingAccount(_firstName, _lastName, _age, _phone, _address, _adhaarNumber, _accountNum, _balance){
 		loanAmount = _loan-0.1;
@@ -100,12 +100,14 @@ class currentAccount : public SavingAccount
 	{
 		loanAmount += amount;
 		cout << endl << "\x1B[92m TRANSACTION SUCESSFULL : YOU HAVE TAKEN A LOAN AGAINST YOUR CURRENT ACCOUNT. \033[0m" << endl;
-		cout << " CURRENT LOAN AMOUNT : " << loanAmount << endl << endl;
+		cout << " CURRENT LOAN AMOUNT : " << loanAmount << endl;
+		cout << " CURRENT BALANCE : " << balance << endl << endl;
 	}
 	void payInstallment(double amount)
 	{
 		cout << endl << "\x1B[92m TRANSACTION SUCESSFULL : YOU HAVE PAID AN INSTALLMENT FOR YOUR LOAN. \033[0m" << endl;
-		cout << " CURRENT BALANCE : " << loanAmount << endl << endl;
+		cout << " CURRENT LOAN AMOUNT : " << loanAmount << endl;
+		cout << " CURRENT BALANCE : " << balance << endl << endl;
 		loanAmount -= amount;
 	}
 	void addIntrest()
@@ -203,7 +205,7 @@ class BankManagement{
 				if(i!=accounts.size()-1) printLine(1);
 			}
 			printFooter(1);
-			cout << endl << "DETAILS OF CURREN ACCOUNTS THAT EXISTS IN OUR DATABASE : " << endl;
+			cout << endl << "DETAILS OF CURRENT ACCOUNTS THAT EXISTS IN OUR DATABASE : " << endl;
 			printHeaders(0);
 			for(int i=0; i<currentAccounts.size(); i++)
 			{
@@ -259,11 +261,18 @@ class BankManagement{
 int main()
 {
 	BankManagement bank;
+	/*   LOADING DATABASE TO BANK
+	ifstream database;
+	database.open("Bank.txt", ios::in);
+	database.read((char*)&bank, sizeof(bank));
+	database.close();
+	*/
 	int accountNumber = 800847;
+	char op;
 	int choice;
-	char op=0;
 	do
 	{
+		main_menu:
 		cout << endl << "WELCOME TO THE BANK OF ATLANTIC OCEAN" << endl << endl;
 		cout << "HOW MAY I HELP YOU TODAY ?" << endl;
 		cout << "1. CREATE A NEW ACCOUNT" << endl;
@@ -277,10 +286,11 @@ int main()
 		{
 			case 1:
 			{
+				system("cls");
 				string firstName, lastName, phone, address, adhaar;
 				int accountNum, age;
 				double balance;
-				cout << "ENTER FIRST NAME OF THE APPLICANT : ";
+				cout << endl << "ENTER FIRST NAME OF THE APPLICANT : ";
 				cin >> firstName;
 				cout << "ENTER LAST NAME OF THE APPLICANT : ";
 				cin >> lastName;
@@ -303,7 +313,7 @@ int main()
 				cin >> balance;
 				if(balance < 1000 || balance > 9999)
 				{
-					cout << "YOU NEED A MINIMUM OF 1000 TO OPEN A BANK ACCOUNT!";
+					cout << "\x1B[91m YOU NEED A MINIMUM OF 1000 TO OPEN A BANK ACCOUNT! \033[0m" << endl;
 					goto balanceCheck;
 				}
 				char acc;
@@ -313,7 +323,7 @@ int main()
 				if(acc == 'S' || acc=='s')
 					bank.AddSavingAccount(firstName, lastName, age, phone, address, adhaar, accountNumber++, balance - 0.1);
 				else if(acc == 'c' || acc == 'C')
-					bank.AddCurrentAccount(firstName, lastName, age, phone, address, adhaar, accountNumber++, balance - 0.1, 0.2);
+					bank.AddCurrentAccount(firstName, lastName, age, phone, address, adhaar, accountNumber++, balance + 100.9, 101);
 				else
 				{
 					cout << "INVALID KEY!" << endl;
@@ -323,12 +333,15 @@ int main()
 			}
 			case 2:
 			{
+				system("cls");
 				cout << "WHAT TRANSACTION YOU WISH TO PERFORM ? " << endl;
 				cout << "1. DEPOSIT" << endl;
 				cout << "2. WITHDRAWAL" << endl;
 				cout << "3. APPLY FOR A LOAN" << endl;
 				cout << "4. PAY LOAN INSTALLMENT" << endl;
 				cout << "5. ADD INTREST TO THE ACCOUNT" << endl;
+				cout << "6. GO BACK" << endl << endl;
+				cout << "ENTER YOUR CHOICE : ";
 				int operation;
 				cin >> operation;
 				switch(operation)
@@ -353,7 +366,7 @@ int main()
 							fflush(stdin);
 							cout << "ENTER AMOUNT : ";
 							cin >> amount;
-							account->deposit(amount);
+							account_->deposit(amount);
 						}
 						else
 						{
@@ -381,7 +394,7 @@ int main()
 							fflush(stdin);
 							cout << "ENTER AMOUNT : ";
 							cin >> amount;
-							account->withdraw(amount);
+							account_->withdraw(amount);
 						}
 						else
 						{
@@ -440,16 +453,23 @@ int main()
 						else cout << endl << "\x1B[91m ACCOUNT DOSEN'T EXIST! \033[0m" << endl << endl;
 						break;
 					}
+					default:
+					{
+						system("cls");
+						goto main_menu;
+					}
 				}
 				break;
 			}
 			case 3:
 			{
+				system("cls");
 				bank.printDatabse();
 				break;
 			}
 			case 4:
 			{
+				system("cls");
 				char acc;
 				here : 
 				cout << "SELECT ACCOUNT TYPE : SAVING(S) or CURRENT(C) : ";
@@ -474,12 +494,14 @@ int main()
 				database.open("Bank.txt", ios::app);
 				database.write((char*)&bank,sizeof(bank));
 				database.close();
+				system("cls");
 				cout << "ADIOS, SEE YOU AGAIN!" << endl;
 				exit(1);
 				break;
 			}
 		}
-		cout << "DO YOU WISH TO CONTINUE? [Y/N] : ";
+		cout << endl << "OPERATION COMPLETED!" << endl;
+		cout << endl << "DO YOU WISH TO CONTINUE? [Y/N] : ";
 		cin >> op;
 		if(op == 'N' || op == 'n')
 		{
@@ -487,11 +509,11 @@ int main()
 			database.open("Bank.txt", ios::app);
 			database.write((char*)&bank,sizeof(bank));
 			database.close();
-			cout << "ADIOS, SEE YOU AGAIN!" << endl;
+			cout << "ADIOS, SEE YOU AGAIN!" << endl << endl;
 			exit(1);
 		}
 		system("cls");
 	}
-	while(op == 'y'||op =='Y');
+	while(op == 'y' || op =='Y');
 	return 0;
 }
