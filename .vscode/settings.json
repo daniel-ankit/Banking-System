@@ -5,6 +5,7 @@
         "iomanip": "cpp",
         "ostream": "cpp",
         "typeindex": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "iosfwd": "cpp"
     }
 }
